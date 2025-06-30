@@ -1,18 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import "./globals.css";
-
-const typewriterPhrases = [
-  "Empowering physics students everywhere.",
-  "AP & Olympiad Physics resources.",
-  "Mentorship and community.",
-  "Interactive simulations.",
-  "Bootcamps and research ideas.",
-  "Internship and summer program connector.",
-  "Feynman Lectures simplified.",
-  "Join the movement."
-];
 
 function Typewriter() {
   const typewriterPhrases = [
@@ -49,7 +37,7 @@ function Typewriter() {
       }, 400);
     }
     return () => clearTimeout(timeout);
-  }, [displayed, deleting, index]);
+  }, [displayed, deleting, index, typewriterPhrases]);
 
   return (
     <span className="font-medium text-xl md:text-2xl text-center min-h-[2.5em] mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 select-none leading-[1.2]">
@@ -167,7 +155,7 @@ export default function Home() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      let emails = JSON.parse(localStorage.getItem("physica-waitlist") || "[]");
+      const emails = JSON.parse(localStorage.getItem("physica-waitlist") || "[]");
       emails.push(email);
       localStorage.setItem("physica-waitlist", JSON.stringify(emails));
       setSubmitted(true);
