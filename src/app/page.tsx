@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import "./globals.css";
+import { useForm } from "react-hook-form";
 
 function Typewriter() {
   const typewriterPhrases = [
@@ -149,34 +150,31 @@ function CursorRipple() {
 }
 
 export default function Home() {
-  const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<{ email: string }>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Submitting email:", email);
+  const onSubmit = async (data: { email: string }) => {
+    console.log("Submitting email:", data.email);
     setError(null);
     setSubmitted(false);
-    if (email) {
-      try {
-        const res = await fetch("/api/waitlist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-        const data = await res.json();
-        console.log("API response:", data);
-        if (res.ok) {
-          setSubmitted(true);
-          setEmail("");
-          setTimeout(() => setSubmitted(false), 2000);
-        } else {
-          setError(data.error || "Something went wrong. Please try again.");
-        }
-      } catch (err) {
-        setError("Network error. Please try again.");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email }),
+      });
+      const resData = await res.json();
+      console.log("API response:", resData);
+      if (res.ok) {
+        setSubmitted(true);
+        reset();
+        setTimeout(() => setSubmitted(false), 2000);
+      } else {
+        setError(resData.error || "Something went wrong. Please try again.");
       }
+    } catch (err) {
+      setError("Network error. Please try again.");
     }
   };
 
@@ -201,13 +199,12 @@ export default function Home() {
         </div>
         <Typewriter />
         <div className="flex flex-col items-center gap-6 w-full max-w-xl">
-          <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3 items-center w-full justify-center">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row gap-3 items-center w-full justify-center">
             <input
               type="email"
               required
               placeholder="Enter your email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              {...register("email", { required: true })}
               className="px-4 py-2 rounded-lg bg-zinc-900 text-white border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 md:w-72 shadow-md"
             />
             <button
@@ -217,6 +214,9 @@ export default function Home() {
               {submitted ? "Added!" : "Join the Waitlist"}
             </button>
           </form>
+          {errors.email && (
+            <div className="text-red-400 text-sm mt-2">Please enter a valid email.</div>
+          )}
           {error && (
             <div className="text-red-400 text-sm mt-2">{error}</div>
           )}
