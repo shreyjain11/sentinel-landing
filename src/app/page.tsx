@@ -173,7 +173,7 @@ export default function Home() {
       } else {
         setError(resData.error || "Something went wrong. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Please try again.");
     }
   };
