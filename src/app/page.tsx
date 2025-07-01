@@ -155,6 +155,7 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting email:", email);
     setError(null);
     setSubmitted(false);
     if (email) {
@@ -165,9 +166,11 @@ export default function Home() {
           body: JSON.stringify({ email }),
         });
         const data = await res.json();
+        console.log("API response:", data);
         if (res.ok) {
           setSubmitted(true);
           setEmail("");
+          setTimeout(() => setSubmitted(false), 2000);
         } else {
           setError(data.error || "Something went wrong. Please try again.");
         }
@@ -210,7 +213,6 @@ export default function Home() {
             <button
               type="submit"
               className="px-7 py-2 rounded-lg font-bold shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-gradient-to-r from-blue-500 to-purple-500 text-white"
-              disabled={submitted}
             >
               {submitted ? "Added!" : "Join the Waitlist"}
             </button>
