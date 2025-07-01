@@ -151,15 +151,29 @@ function CursorRipple() {
 export default function Home() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSubmitted(false);
     if (email) {
-      const emails = JSON.parse(localStorage.getItem("physica-waitlist") || "[]");
-      emails.push(email);
-      localStorage.setItem("physica-waitlist", JSON.stringify(emails));
-      setSubmitted(true);
-      setEmail("");
+      try {
+        const res = await fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setSubmitted(true);
+          setEmail("");
+        } else {
+          setError(data.error || "Something went wrong. Please try again.");
+        }
+      } catch (err) {
+        setError("Network error. Please try again.");
+      }
     }
   };
 
@@ -196,10 +210,14 @@ export default function Home() {
             <button
               type="submit"
               className="px-7 py-2 rounded-lg font-bold shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+              disabled={submitted}
             >
               {submitted ? "Added!" : "Join the Waitlist"}
             </button>
           </form>
+          {error && (
+            <div className="text-red-400 text-sm mt-2">{error}</div>
+          )}
           <div className="flex gap-4 mt-2">
             <a
               href="https://discord.gg/QMyXmMUY"
