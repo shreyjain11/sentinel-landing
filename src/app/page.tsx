@@ -239,7 +239,7 @@ function StarfieldBackground() {
   }[] | null>(null);
 
   useEffect(() => {
-    const arr = Array.from({ length: 48 }).map((_, i) => ({
+    const arr = Array.from({ length: 48 }).map(() => ({
       left: Math.random() * 100,
       top: Math.random() * 100,
       size: 1.2 + Math.random() * 1.8,
@@ -252,9 +252,9 @@ function StarfieldBackground() {
 
   return (
     <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden">
-      {stars.map((s, i) => (
+      {stars.map((s, idx) => (
         <div
-          key={i}
+          key={idx}
           className={`absolute rounded-full bg-white animate-twinkle${s.twinkle}`}
           style={{
             left: `${s.left}%`,
@@ -288,7 +288,7 @@ export default function Home() {
       setSubmitted(true);
       reset();
       setTimeout(() => setSubmitted(false), 2000);
-    } catch (err: any) {
+    } catch (err) {
       setError("Something went wrong. Please try again.");
     }
   };
@@ -373,18 +373,3 @@ export default function Home() {
     </main>
   );
 }
-
-// FeatureCard component
-function FeatureCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
-  return (
-    <div className="flex flex-col items-center bg-zinc-900/80 rounded-2xl p-6 border border-green-800 shadow-lg hover:shadow-[0_0_24px_4px_rgba(34,197,94,0.15)] transition-all duration-200">
-      <div className="text-4xl mb-2 drop-shadow-[0_2px_8px_rgba(34,197,94,0.3)]">{icon}</div>
-      <div className="font-bold text-green-400 text-lg mb-1 text-center">{title}</div>
-      <div className="text-zinc-200 text-sm text-center">{desc}</div>
-    </div>
-  );
-}
-
-// Add this to your globals.css for .animate-spin-slow:
-// .animate-spin-slow { animation: spin 6s linear infinite; }
-// @keyframes spin { to { transform: rotate(360deg); } }
