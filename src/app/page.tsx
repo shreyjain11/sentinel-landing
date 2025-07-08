@@ -5,21 +5,23 @@ import { useForm } from "react-hook-form";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
+// Move typewriterPhrases outside the component
+const typewriterPhrases = [
+  "Never forget to cancel a free trial again.",
+  "AI-powered trial tracking.",
+  "Smart notifications before charges.",
+  "One-click cancellation.",
+  "Save money on unwanted subscriptions.",
+  "Effortless subscription management.",
+  "Usage analytics for smarter decisions.",
+  "Personalized offers and alternatives.",
+  "Your privacy, our priority.",
+  "Gamify your savings journey.",
+  "Integrates with your favorite tools.",
+  "Smarter tracking. Safer spending.",
+];
+
 function Typewriter() {
-  const typewriterPhrases = [
-    "Never forget to cancel a free trial again.",
-    "AI-powered trial tracking.",
-    "Smart notifications before charges.",
-    "One-click cancellation.",
-    "Save money on unwanted subscriptions.",
-    "Effortless subscription management.",
-    "Usage analytics for smarter decisions.",
-    "Personalized offers and alternatives.",
-    "Your privacy, our priority.",
-    "Gamify your savings journey.",
-    "Integrates with your favorite tools.",
-    "Smarter tracking. Safer spending.",
-  ];
   const [index, setIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -39,7 +41,7 @@ function Typewriter() {
       }, 400);
     }
     return () => clearTimeout(timeout);
-  }, [displayed, deleting, index, typewriterPhrases]);
+  }, [displayed, deleting, index]);
 
   return (
     <span className="font-medium text-xl md:text-2xl text-center min-h-[2.5em] mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-800 select-none leading-[1.2] drop-shadow-[0_2px_12px_rgba(34,197,94,0.3)]">
