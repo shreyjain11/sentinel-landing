@@ -117,7 +117,7 @@ function AnimatedLogo() {
   return (
     <span className={`rounded-full p-2 bg-gradient-to-br from-green-600/60 to-green-900/60 shadow-[0_0_32px_8px_rgba(34,197,94,0.25)] animate-pulse transition-all duration-700 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
       style={{ display: 'inline-block' }}>
-      <img src="/sentinel-logo.png" alt="Sentinel Logo" width={60} height={60} className="mx-auto" />
+      <img src="/sentinal-logo.png" alt="Sentinal Logo" width={60} height={60} className="mx-auto" />
     </span>
   );
 }
