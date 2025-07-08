@@ -288,7 +288,7 @@ export default function Home() {
       setSubmitted(true);
       reset();
       setTimeout(() => setSubmitted(false), 2000);
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Please try again.");
     }
   };
