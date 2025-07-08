@@ -1,5 +1,5 @@
 {
-  "name": "project-physica-landing-page",
+  "name": "sentinal-landing",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,7 +14,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.59.0",
-    "zod": "^3.25.67"
+    "zod": "^3.25.67",
+    "firebase": "^10.7.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
