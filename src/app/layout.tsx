@@ -1,6 +1,9 @@
+
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { Sora } from "next/font/google";
+import { Analytics } from '@vercel/analytics/next';
+
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["400", "600", "700"] });
