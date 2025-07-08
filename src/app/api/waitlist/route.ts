@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { db } from '@/firebase';
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { z } from 'zod';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 const EmailSchema = z.object({
   email: z.string().email(),
@@ -20,15 +16,24 @@ export async function POST(request: Request) {
     }
     const { email } = parseResult.data;
 
-    const { error } = await supabase.from('waitlist').insert([{ email }]);
-    if (error) {
-      if (error.code === '23505') { // unique_violation
-        return NextResponse.json({ error: 'Email already on waitlist' }, { status: 409 });
-      }
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    // Check if email already exists
+    const waitlistRef = collection(db, 'waitlist');
+    const q = query(waitlistRef, where('email', '==', email));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      return NextResponse.json({ error: 'Email already on waitlist' }, { status: 409 });
     }
+
+    // Add email to waitlist
+    await addDoc(waitlistRef, { 
+      email,
+      createdAt: new Date().toISOString()
+    });
+
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
+    console.error('Waitlist error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 } 
