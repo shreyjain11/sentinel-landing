@@ -117,7 +117,7 @@ function AnimatedLogo() {
   return (
     <span className={`rounded-full p-2 bg-gradient-to-br from-green-600/60 to-green-900/60 shadow-[0_0_32px_8px_rgba(34,197,94,0.25)] animate-pulse transition-all duration-700 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
       style={{ display: 'inline-block' }}>
-      <img src="/sentinal-logo.png" alt="Sentinal Logo" width={60} height={60} className="mx-auto" />
+      <img src="/sentinel-logo.png" alt="Sentinel Logo" width={60} height={60} className="mx-auto" />
     </span>
   );
 }
@@ -308,7 +308,7 @@ export default function Home() {
           <h1
             className="premium-heading text-5xl md:text-7xl font-extrabold text-center tracking-tight drop-shadow-lg mb-2 relative select-none text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-800 leading-[1.2]"
           >
-            Sentinal
+                          Sentinel
           </h1>
         </FadeInSection>
         <FadeInSection delay={300}>
