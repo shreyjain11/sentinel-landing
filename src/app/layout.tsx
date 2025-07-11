@@ -2,7 +2,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { Sora } from "next/font/google";
-import { Analytics } from '@vercel/analytics/next';
+// ...existing code...
 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
