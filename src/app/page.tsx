@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import "./globals.css";
 import confetti from "canvas-confetti";
 
@@ -115,7 +116,7 @@ function AnimatedLogo() {
   return (
     <span className={`rounded-full p-2 bg-gradient-to-br from-green-600/60 to-green-900/60 shadow-[0_0_32px_8px_rgba(34,197,94,0.25)] animate-pulse transition-all duration-700 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
       style={{ display: 'inline-block' }}>
-      <img src="/sentinal-logo.png" alt="Sentinal Logo" width={60} height={60} className="mx-auto" />
+      <Image src="/sentinal-logo.png" alt="Sentinal Logo" width={60} height={60} className="mx-auto" />
     </span>
   );
 }
@@ -273,7 +274,7 @@ function StarfieldBackground() {
 export default function Home() {
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = () => {
     // Let the form submit naturally to Formspree
     // Show confetti after a short delay
     setTimeout(() => {
