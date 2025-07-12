@@ -1,9 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import "./globals.css";
-import { useForm } from "react-hook-form";
-import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import confetti from "canvas-confetti";
 
 // Move typewriterPhrases outside the component
 const typewriterPhrases = [
@@ -274,23 +272,20 @@ function StarfieldBackground() {
 
 export default function Home() {
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<{ email: string }>();
 
-  const onSubmit = async (data: { email: string }) => {
-    setError(null);
-    setSubmitted(false);
-    try {
-      await addDoc(collection(db, "waitlist"), {
-        email: data.email,
-        timestamp: serverTimestamp(),
+  const handleSubmit = (e: React.FormEvent) => {
+    // Let the form submit naturally to Formspree
+    // Show confetti after a short delay
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        zIndex: 9999
       });
       setSubmitted(true);
-      reset();
       setTimeout(() => setSubmitted(false), 2000);
-    } catch {
-      setError("Something went wrong. Please try again.");
-    }
+    }, 100);
   };
 
   return (
@@ -323,12 +318,17 @@ export default function Home() {
         <FadeInSection delay={900}>
           <div className="flex flex-col items-center gap-6 w-full max-w-xl">
             <div className="bg-zinc-900/60 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-green-900/60 flex flex-col items-center w-full">
-              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row gap-3 items-center w-full justify-center">
+              <form 
+                action="https://formspree.io/f/xyzjrazr"
+                method="POST"
+                onSubmit={handleSubmit}
+                className="flex flex-col md:flex-row gap-3 items-center w-full justify-center"
+              >
                 <input
                   type="email"
+                  name="email"
                   required
                   placeholder="Enter your email"
-                  {...register("email", { required: true })}
                   className="px-4 py-2 rounded-lg bg-zinc-900 text-white border border-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 w-64 md:w-72 shadow-md"
                 />
                 <button
@@ -338,12 +338,6 @@ export default function Home() {
                   {submitted ? "Added!" : "Join the Waitlist"}
                 </button>
               </form>
-              {errors.email && (
-                <div className="text-green-400 text-sm mt-2">Please enter a valid email.</div>
-              )}
-              {error && (
-                <div className="text-green-400 text-sm mt-2">{error}</div>
-              )}
               <SuccessCheckmark show={submitted} />
             </div>
             {/* Social buttons */}
