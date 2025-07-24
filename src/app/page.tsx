@@ -6,19 +6,166 @@ import confetti from "canvas-confetti";
 
 // Move typewriterPhrases outside the component
 const typewriterPhrases = [
-  "Never forget to cancel a free trial again.",
-  "AI-powered trial tracking.",
-  "Smart notifications before charges.",
-  "One-click cancellation.",
-  "Save money on unwanted subscriptions.",
-  "Effortless subscription management.",
-  "Usage analytics for smarter decisions.",
-  "Personalized offers and alternatives.",
-  "Your privacy, our priority.",
-  "Gamify your savings journey.",
-  "Integrates with your favorite tools.",
-  "Smarter tracking. Safer spending.",
+  "Effortless.",
+  "Secure.",
+  "Automatic.",
+  "Smart.",
+  "Intelligent.",
+  "Reliable.",
+  "Seamless.",
+  "Powerful.",
+  "Innovative.",
+  "Trusted.",
+  "Advanced.",
+  "Simple.",
 ];
+
+function SmoothFilledOrganicCurveBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | undefined>(undefined);
+  const lastTimeRef = useRef<number>(0);
+
+  // Animation loop
+  const animate = (currentTime: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Cap at 30fps for performance
+    if (currentTime - lastTimeRef.current < 33.33) {
+      animationRef.current = requestAnimationFrame(animate);
+      return;
+    }
+    lastTimeRef.current = currentTime;
+
+    const { width, height } = canvas;
+    const time = currentTime * 0.001;
+
+    // Clear canvas
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, width, height);
+
+    // Create filled organic curves
+    for (let i = 0; i < 3; i++) {
+      const offset = i * 0.6;
+      const amplitude = 80 + Math.sin(time * 0.3 + i) * 30;
+      const frequency = 0.012 + Math.sin(time * 0.2 + i) * 0.002;
+      
+      ctx.beginPath();
+      
+      // Start the filled curve at the top
+      const startY = height * 0.2 + Math.sin(time * 0.4 + offset) * 40;
+      ctx.moveTo(0, startY);
+      
+      // Create the top edge of the filled curve
+      for (let x = 0; x < width; x += 1) {
+        const y = height * 0.2 + 
+                  Math.sin(x * frequency + time * 0.6 + offset) * amplitude +
+                  Math.sin(x * frequency * 0.7 + time * 0.8 + offset) * amplitude * 0.4 +
+                  Math.sin(x * frequency * 0.3 + time * 1.2 + offset) * amplitude * 0.2;
+        
+        ctx.lineTo(x, y);
+      }
+      
+      // Complete the filled shape by going to bottom and back
+      ctx.lineTo(width, height);
+      ctx.lineTo(0, height);
+      ctx.closePath();
+      
+      // Create gradient for the filled curve
+      const gradient = ctx.createLinearGradient(0, 0, width, 0);
+      gradient.addColorStop(0, `rgba(147, 51, 234, ${0.15 - i * 0.03})`);
+      gradient.addColorStop(0.3, `rgba(99, 102, 241, ${0.2 - i * 0.03})`);
+      gradient.addColorStop(0.7, `rgba(139, 92, 250, ${0.18 - i * 0.03})`);
+      gradient.addColorStop(1, `rgba(147, 51, 234, ${0.15 - i * 0.03})`);
+      
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    }
+
+    // Add subtle floating particles
+    for (let i = 0; i < 12; i++) {
+      const x = (Math.sin(time * 0.2 + i * 0.8) * 0.5 + 0.5) * width;
+      const y = (Math.cos(time * 0.3 + i * 0.6) * 0.5 + 0.5) * height;
+      const size = Math.sin(time + i) * 2 + 3;
+      const opacity = Math.sin(time * 0.6 + i) * 0.2 + 0.1;
+
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(147, 197, 253, ${opacity})`;
+      ctx.fill();
+    }
+
+    // Add subtle glow overlay
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = 'rgba(147, 51, 234, 0.05)';
+    ctx.fillRect(0, 0, width, height);
+    ctx.globalCompositeOperation = 'source-over';
+
+    animationRef.current = requestAnimationFrame(animate);
+  };
+
+  // Handle resize
+  const handleResize = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
+
+  // Handle visibility change
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = undefined;
+      }
+    } else {
+      if (!animationRef.current) {
+        animationRef.current = requestAnimationFrame((time) => animate(time));
+      }
+    }
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Start animation
+    animationRef.current = requestAnimationFrame((time) => animate(time));
+
+    // Add event listeners
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 w-full h-full pointer-events-none"
+      style={{
+        zIndex: -10,
+        opacity: 0.6,
+        mixBlendMode: 'screen'
+      }}
+    />
+  );
+}
 
 function Typewriter() {
   const [index, setIndex] = useState(0);
@@ -43,67 +190,15 @@ function Typewriter() {
   }, [displayed, deleting, index]);
 
   return (
-    <span className="font-medium text-xl md:text-2xl text-center min-h-[2.5em] mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-800 select-none leading-[1.2] drop-shadow-[0_2px_12px_rgba(34,197,94,0.3)]">
-      {displayed}|
-    </span>
-  );
-}
-
-function ParallaxBlobs() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState({ x: 0.5, y: 0.5 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      setCoords({ x, y });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // 12+ blobs, organic positions, different sizes/colors/movement
-  const blobs = [
-    { style: { background: "radial-gradient(circle at 50% 50%, #6366f1 0%, #a855f7 80%, transparent 100%)", width: 340, height: 340, filter: "blur(60px)", opacity: 0.32, left: `calc(2% + ${(coords.x - 0.5) * 120}px)`, top: `calc(8% + ${(coords.y - 0.5) * 80}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #f472b6 0%, #a855f7 80%, transparent 100%)", width: 120, height: 120, filter: "blur(30px)", opacity: 0.18, left: `calc(80% + ${(coords.x - 0.5) * 60}px)`, top: `calc(5% + ${(coords.y - 0.5) * 40}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #34d399 0%, #6366f1 80%, transparent 100%)", width: 180, height: 180, filter: "blur(40px)", opacity: 0.15, left: `calc(10% + ${(coords.x - 0.5) * 200}px)`, top: `calc(80% + ${(coords.y - 0.5) * 120}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #a855f7 0%, #6366f1 80%, transparent 100%)", width: 320, height: 320, filter: "blur(80px)", opacity: 0.22, left: `calc(70% + ${(coords.x - 0.5) * 100}px)`, top: `calc(60% + ${(coords.y - 0.5) * 120}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #fbbf24 0%, #a855f7 80%, transparent 100%)", width: 100, height: 100, filter: "blur(30px)", opacity: 0.13, left: `calc(90% + ${(coords.x - 0.5) * 80}px)`, top: `calc(90% + ${(coords.y - 0.5) * 80}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #60a5fa 0%, #a855f7 80%, transparent 100%)", width: 200, height: 200, filter: "blur(50px)", opacity: 0.18, left: `calc(45% + ${(coords.x - 0.5) * 60}px)`, top: `calc(40% + ${(coords.y - 0.5) * 60}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #a855f7 0%, #f472b6 80%, transparent 100%)", width: 90, height: 90, filter: "blur(20px)", opacity: 0.12, left: `calc(5% + ${(coords.x - 0.5) * 100}px)`, top: `calc(95% + ${(coords.y - 0.5) * 60}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #f59e42 0%, #a855f7 80%, transparent 100%)", width: 160, height: 160, filter: "blur(40px)", opacity: 0.14, left: `calc(15% + ${(coords.x - 0.5) * 120}px)`, top: `calc(60% + ${(coords.y - 0.5) * 100}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #60a5fa 0%, #6366f1 80%, transparent 100%)", width: 260, height: 260, filter: "blur(70px)", opacity: 0.19, left: `calc(80% + ${(coords.x - 0.5) * 120}px)`, top: `calc(80% + ${(coords.y - 0.5) * 120}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #34d399 0%, #60a5fa 80%, transparent 100%)", width: 80, height: 80, filter: "blur(20px)", opacity: 0.10, left: `calc(2% + ${(coords.x - 0.5) * 60}px)`, top: `calc(2% + ${(coords.y - 0.5) * 40}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #f472b6 0%, #a21caf 80%, transparent 100%)", width: 150, height: 150, filter: "blur(30px)", opacity: 0.15, left: `calc(70% + ${(coords.x - 0.5) * 80}px)`, top: `calc(45% + ${(coords.y - 0.5) * 60}px)` } },
-    { style: { background: "radial-gradient(circle at 50% 50%, #60a5fa 0%, #6366f1 80%, transparent 100%)", width: 100, height: 100, filter: "blur(25px)", opacity: 0.11, left: `calc(25% + ${(coords.x - 0.5) * 40}px)`, top: `calc(55% + ${(coords.y - 0.5) * 40}px)` } },
-  ];
-
-  return (
-    <div ref={containerRef} className="fixed inset-0 -z-20 pointer-events-none">
-      {blobs.map((blob, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            ...blob.style,
-            borderRadius: "50%",
-            transition: "left 0.3s cubic-bezier(.4,2,.6,1), top 0.3s cubic-bezier(.4,2,.6,1)",
-            zIndex: -20,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function GlassNoiseOverlay() {
-  // Implementation of GlassNoiseOverlay component
-  return (
-    <div className="fixed inset-0 -z-10 pointer-events-none">
-      {/* GlassNoiseOverlay content */}
+    <div className="relative text-center min-h-[2.5em] mb-4">
+      {/* Enhanced typewriter text with better contrast */}
+      <span className="font-heading font-medium text-xl md:text-2xl text-white select-none leading-[1.2] drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
+        {displayed}
+      </span>
+      {/* Enhanced cursor */}
+      <span className="cursor text-white font-normal drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]">
+        |
+      </span>
     </div>
   );
 }
@@ -114,10 +209,23 @@ function AnimatedLogo() {
     setTimeout(() => setShow(true), 100);
   }, []);
   return (
-    <span className={`rounded-full p-2 bg-gradient-to-br from-green-600/60 to-green-900/60 shadow-[0_0_32px_8px_rgba(34,197,94,0.25)] animate-pulse transition-all duration-700 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
-      style={{ display: 'inline-block' }}>
-      <Image src="/sentinal-logo.png" alt="Sentinal Logo" width={60} height={60} className="mx-auto" />
-    </span>
+    <div className={`relative transition-all duration-700 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
+      {/* More subtle multi-layer glow effect */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/20 via-blue-500/15 to-indigo-600/10 blur-xl animate-pulse" />
+      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400/15 to-indigo-500/10 blur-lg animate-pulse" style={{ animationDelay: '0.5s' }} />
+      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-400/10 to-purple-500/5 blur-md animate-pulse" style={{ animationDelay: '1s' }} />
+      
+      {/* Smaller, more refined logo container */}
+      <div className="relative rounded-full p-3 bg-gradient-to-br from-slate-900/60 via-blue-900/40 to-indigo-900/30 backdrop-blur-lg border border-cyan-500/20 shadow-[0_0_30px_8px_rgba(34,211,238,0.15)]">
+        <Image 
+          src="/sentinel-logo.png" 
+          alt="Sentinel Logo" 
+          width={40} 
+          height={40} 
+          className="mx-auto drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]" 
+        />
+      </div>
+    </div>
   );
 }
 
@@ -132,141 +240,524 @@ function FadeInSection({ children, delay = 0 }: { children: React.ReactNode, del
   );
 }
 
-function GreenGlowCursor() {
-  const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[9999]">
-      <div
-        style={{
-          position: "absolute",
-          left: pos.x - 22,
-          top: pos.y - 22,
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(34,197,94,0.22) 0%, rgba(34,197,94,0.10) 70%, transparent 100%)",
-          boxShadow: "0 0 32px 12px rgba(34,197,94,0.18)",
-          pointerEvents: "none",
-          zIndex: 9999,
-          transition: "left 0.02s linear, top 0.02s linear",
-        }}
-      />
-    </div>
-  );
-}
-
 function SuccessCheckmark({ show }: { show: boolean }) {
   return show ? (
     <div className="flex items-center justify-center mt-4">
       <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="animate-pop">
-        <circle cx="20" cy="20" r="18" stroke="#22c55e" strokeWidth="3" fill="#22c55e22" />
-        <path d="M13 21l5 5 9-9" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="20" cy="20" r="18" stroke="#22d3ee" strokeWidth="3" fill="#22d3ee22" />
+        <path d="M13 21l5 5 9-9" stroke="#22d3ee" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   ) : null;
 }
 
-function GreenParticlesBackground() {
-  const [particles, setParticles] = useState<{
-    width: number;
-    height: number;
-    left: number;
-    top: number;
-    opacity: number;
-    anim: number;
-  }[] | null>(null);
-
-  useEffect(() => {
-    // Only run on client
-    const arr = Array.from({ length: 18 }).map((_, i) => ({
-      width: 18 + (i % 4) * 8,
-      height: 18 + (i % 4) * 8,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      opacity: 0.7 - (i % 3) * 0.2,
-      anim: (i % 3) + 1,
-    }));
-    setParticles(arr);
-  }, []);
-
-  if (!particles) return null;
-
-  return (
-    <div className="fixed inset-0 -z-30 pointer-events-none overflow-hidden">
-      {particles.map((p, i) => (
-        <div
-          key={i}
-          className={`absolute rounded-full bg-green-500/20 animate-float${p.anim}`}
-          style={{
-            width: `${p.width}px`,
-            height: `${p.height}px`,
-            left: `${p.left}%`,
-            top: `${p.top}%`,
-            filter: 'blur(2px)',
-            opacity: p.opacity,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function GreenBlobsBackground() {
-  // 3 large animated green blobs, more visible
-  return (
-    <div className="fixed inset-0 -z-10 pointer-events-none">
-      <div className="absolute left-[-10vw] top-[-10vh] w-[40vw] h-[40vw] rounded-full bg-green-500/60 blur-3xl animate-blob1" />
-      <div className="absolute right-[-12vw] top-[30vh] w-[45vw] h-[45vw] rounded-full bg-green-400/50 blur-3xl animate-blob2" />
-      <div className="absolute left-[20vw] bottom-[-15vh] w-[35vw] h-[35vw] rounded-full bg-green-700/40 blur-2xl animate-blob3" />
-    </div>
-  );
-}
-
-function StarfieldBackground() {
-  const [stars, setStars] = useState<{
-    left: number;
-    top: number;
+function RandomMovingOrganicShapesBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | undefined>(undefined);
+  const lastTimeRef = useRef<number>(0);
+  const shapesRef = useRef<Array<{
+    x: number;
+    y: number;
     size: number;
-    twinkle: number;
-  }[] | null>(null);
+    speedX: number;
+    speedY: number;
+    rotation: number;
+    rotationSpeed: number;
+    points: number;
+    timeOffset: number;
+  }>>([]);
+
+  // Initialize random shapes
+  const initializeShapes = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const { width, height } = canvas;
+    shapesRef.current = [];
+
+    // Create 8-12 random organic shapes
+    const numShapes = 8 + Math.floor(Math.random() * 5);
+    
+    for (let i = 0; i < numShapes; i++) {
+      shapesRef.current.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: 60 + Math.random() * 120,
+        speedX: (Math.random() - 0.5) * 0.8,
+        speedY: (Math.random() - 0.5) * 0.8,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.02,
+        points: 6 + Math.floor(Math.random() * 4),
+        timeOffset: Math.random() * Math.PI * 2
+      });
+    }
+  };
+
+  // Create organic shape path
+  const createOrganicShape = (ctx: CanvasRenderingContext2D, shape: any, time: number) => {
+    const { x, y, size, rotation, points, timeOffset } = shape;
+    
+    ctx.beginPath();
+    
+    for (let i = 0; i <= points; i++) {
+      const angle = (i / points) * Math.PI * 2 + rotation;
+      const radius = size * (0.7 + Math.sin(time * 0.5 + timeOffset + i * 0.5) * 0.3);
+      
+      const px = x + Math.cos(angle) * radius;
+      const py = y + Math.sin(angle) * radius;
+      
+      if (i === 0) {
+        ctx.moveTo(px, py);
+      } else {
+        // Create smooth curves between points
+        const prevAngle = ((i - 1) / points) * Math.PI * 2 + rotation;
+        const prevRadius = size * (0.7 + Math.sin(time * 0.5 + timeOffset + (i - 1) * 0.5) * 0.3);
+        const prevX = x + Math.cos(prevAngle) * prevRadius;
+        const prevY = y + Math.sin(prevAngle) * prevRadius;
+        
+        const cpX = (prevX + px) / 2 + Math.sin(time * 0.3 + i) * 10;
+        const cpY = (prevY + py) / 2 + Math.cos(time * 0.3 + i) * 10;
+        
+        ctx.quadraticCurveTo(cpX, cpY, px, py);
+      }
+    }
+    
+    ctx.closePath();
+  };
+
+  // Animation loop
+  const animate = (currentTime: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Cap at 30fps for performance
+    if (currentTime - lastTimeRef.current < 33.33) {
+      animationRef.current = requestAnimationFrame(animate);
+      return;
+    }
+    lastTimeRef.current = currentTime;
+
+    const { width, height } = canvas;
+    const time = currentTime * 0.001;
+
+    // Clear canvas
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, width, height);
+
+    // Update and draw shapes
+    shapesRef.current.forEach((shape, index) => {
+      // Update position
+      shape.x += shape.speedX;
+      shape.y += shape.speedY;
+      shape.rotation += shape.rotationSpeed;
+
+      // Bounce off edges
+      if (shape.x < shape.size || shape.x > width - shape.size) {
+        shape.speedX *= -1;
+        shape.x = Math.max(shape.size, Math.min(width - shape.size, shape.x));
+      }
+      if (shape.y < shape.size || shape.y > height - shape.size) {
+        shape.speedY *= -1;
+        shape.y = Math.max(shape.size, Math.min(height - shape.size, shape.y));
+      }
+
+      // Create organic shape
+      createOrganicShape(ctx, shape, time);
+
+      // Create gradient for the shape
+      const gradient = ctx.createRadialGradient(
+        shape.x, shape.y, 0,
+        shape.x, shape.y, shape.size
+      );
+      
+      const hue = (index * 60 + time * 20) % 360;
+      gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, 0.3)`);
+      gradient.addColorStop(0.7, `hsla(${hue + 30}, 70%, 50%, 0.2)`);
+      gradient.addColorStop(1, `hsla(${hue + 60}, 70%, 40%, 0.1)`);
+
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    });
+
+    // Add subtle floating particles
+    for (let i = 0; i < 15; i++) {
+      const x = (Math.sin(time * 0.2 + i * 0.7) * 0.5 + 0.5) * width;
+      const y = (Math.cos(time * 0.3 + i * 0.5) * 0.5 + 0.5) * height;
+      const size = Math.sin(time + i) * 2 + 2;
+      const opacity = Math.sin(time * 0.6 + i) * 0.15 + 0.05;
+
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(147, 197, 253, ${opacity})`;
+      ctx.fill();
+    }
+
+    // Add subtle glow overlay
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = 'rgba(147, 51, 234, 0.03)';
+    ctx.fillRect(0, 0, width, height);
+    ctx.globalCompositeOperation = 'source-over';
+
+    animationRef.current = requestAnimationFrame(animate);
+  };
+
+  // Handle resize
+  const handleResize = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initializeShapes();
+  };
+
+  // Handle visibility change
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = undefined;
+      }
+    } else {
+      if (!animationRef.current) {
+        animationRef.current = requestAnimationFrame((time) => animate(time));
+      }
+    }
+  };
 
   useEffect(() => {
-    const arr = Array.from({ length: 48 }).map(() => ({
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      size: 1.2 + Math.random() * 1.8,
-      twinkle: Math.floor(Math.random() * 3) + 1,
-    }));
-    setStars(arr);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Initialize shapes
+    initializeShapes();
+
+    // Start animation
+    animationRef.current = requestAnimationFrame((time) => animate(time));
+
+    // Add event listeners
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
-  if (!stars) return null;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 w-full h-full pointer-events-none"
+      style={{
+        zIndex: -10,
+        opacity: 0.7,
+        mixBlendMode: 'screen'
+      }}
+    />
+  );
+}
+
+function OrganicFlowingBlobsBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | undefined>(undefined);
+  const lastTimeRef = useRef<number>(0);
+  const blobsRef = useRef<Array<{
+    x: number;
+    y: number;
+    size: number;
+    speedX: number;
+    speedY: number;
+    timeOffset: number;
+    complexity: number;
+  }>>([]);
+
+  // Initialize organic blobs
+  const initializeBlobs = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const { width, height } = canvas;
+    blobsRef.current = [];
+
+    // Create 4-6 large organic blobs
+    const numBlobs = 4 + Math.floor(Math.random() * 3);
+    
+    for (let i = 0; i < numBlobs; i++) {
+      blobsRef.current.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: 150 + Math.random() * 200,
+        speedX: (Math.random() - 0.5) * 4,
+        speedY: (Math.random() - 0.5) * 4,
+        timeOffset: Math.random() * Math.PI * 2,
+        complexity: 32 + Math.floor(Math.random() * 16)
+      });
+    }
+  };
+
+  // Create organic blob path
+  const createOrganicBlob = (ctx: CanvasRenderingContext2D, blob: any, time: number) => {
+    const { x, y, size, timeOffset, complexity } = blob;
+    
+    ctx.beginPath();
+    
+    // Create very smooth, round blob using many points and gentle sine waves
+    for (let i = 0; i <= complexity; i++) {
+      const angle = (i / complexity) * Math.PI * 2;
+      const radius = size * (
+        0.9 + 
+        Math.sin(angle * 1.5 + time * 0.6 + timeOffset) * 0.08 +
+        Math.sin(angle * 2.5 + time * 0.4 + timeOffset * 0.6) * 0.05 +
+        Math.sin(angle * 3.5 + time * 0.8 + timeOffset * 1.1) * 0.03 +
+        Math.sin(angle * 4.5 + time * 0.3 + timeOffset * 1.4) * 0.02
+      );
+      
+      const px = x + Math.cos(angle) * radius;
+      const py = y + Math.sin(angle) * radius;
+      
+      if (i === 0) {
+        ctx.moveTo(px, py);
+      } else {
+        // Create very smooth curves between points
+        const prevAngle = ((i - 1) / complexity) * Math.PI * 2;
+        const prevRadius = size * (
+          0.9 + 
+          Math.sin(prevAngle * 1.5 + time * 0.6 + timeOffset) * 0.08 +
+          Math.sin(prevAngle * 2.5 + time * 0.4 + timeOffset * 0.6) * 0.05 +
+          Math.sin(prevAngle * 3.5 + time * 0.8 + timeOffset * 1.1) * 0.03 +
+          Math.sin(prevAngle * 4.5 + time * 0.3 + timeOffset * 1.4) * 0.02
+        );
+        const prevX = x + Math.cos(prevAngle) * prevRadius;
+        const prevY = y + Math.sin(prevAngle) * prevRadius;
+        
+        // Create very smooth control points with minimal variation
+        const cpX = (prevX + px) / 2 + Math.sin(time * 0.4 + i * 0.2) * 8;
+        const cpY = (prevY + py) / 2 + Math.cos(time * 0.4 + i * 0.2) * 8;
+        
+        ctx.quadraticCurveTo(cpX, cpY, px, py);
+      }
+    }
+    
+    ctx.closePath();
+  };
+
+  // Animation loop
+  const animate = (currentTime: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Cap at 30fps for performance
+    if (currentTime - lastTimeRef.current < 33.33) {
+      animationRef.current = requestAnimationFrame(animate);
+      return;
+    }
+    lastTimeRef.current = currentTime;
+
+    const { width, height } = canvas;
+    const time = currentTime * 0.001;
+
+    // Clear canvas
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(0, 0, width, height);
+
+    // Update and draw blobs
+    blobsRef.current.forEach((blob, index) => {
+      // Update position with faster, more dynamic movement
+      blob.x += blob.speedX + Math.sin(time * 0.5 + blob.timeOffset) * 2.5;
+      blob.y += blob.speedY + Math.cos(time * 0.6 + blob.timeOffset) * 2.5;
+
+      // Add more dynamic movement patterns
+      blob.x += Math.sin(time * 0.3 + blob.timeOffset * 0.5) * 1.5;
+      blob.y += Math.cos(time * 0.4 + blob.timeOffset * 0.7) * 1.5;
+
+      // Wrap around edges with more dynamic positioning
+      if (blob.x < -blob.size) blob.x = width + blob.size;
+      if (blob.x > width + blob.size) blob.x = -blob.size;
+      if (blob.y < -blob.size) blob.y = height + blob.size;
+      if (blob.y > height + blob.size) blob.y = -blob.size;
+
+      // Create organic blob
+      createOrganicBlob(ctx, blob, time);
+
+      // Create gradient for the blob
+      const gradient = ctx.createRadialGradient(
+        blob.x, blob.y, 0,
+        blob.x, blob.y, blob.size
+      );
+      
+      // Use purple, blue, indigo color scheme
+      if (index % 3 === 0) {
+        // Purple gradient
+        gradient.addColorStop(0, `rgba(147, 51, 234, 0.4)`);
+        gradient.addColorStop(0.5, `rgba(168, 85, 247, 0.3)`);
+        gradient.addColorStop(1, `rgba(196, 181, 253, 0.1)`);
+      } else if (index % 3 === 1) {
+        // Blue gradient
+        gradient.addColorStop(0, `rgba(59, 130, 246, 0.4)`);
+        gradient.addColorStop(0.5, `rgba(96, 165, 250, 0.3)`);
+        gradient.addColorStop(1, `rgba(147, 197, 253, 0.1)`);
+      } else {
+        // Indigo gradient
+        gradient.addColorStop(0, `rgba(99, 102, 241, 0.4)`);
+        gradient.addColorStop(0.5, `rgba(129, 140, 248, 0.3)`);
+        gradient.addColorStop(1, `rgba(165, 180, 252, 0.1)`);
+      }
+
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    });
+
+    // Add enhanced floating particles
+    for (let i = 0; i < 35; i++) {
+      const x = (Math.sin(time * 0.2 + i * 0.6) * 0.5 + 0.5) * width;
+      const y = (Math.cos(time * 0.3 + i * 0.4) * 0.5 + 0.5) * height;
+      const size = Math.sin(time + i) * 2 + 3;
+      const opacity = Math.sin(time * 0.6 + i) * 0.15 + 0.08;
+      const hue = (i * 20 + time * 10) % 360;
+
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${hue}, 70%, 70%, ${opacity})`;
+      ctx.fill();
+      
+      // Add glow effect to some particles
+      if (i % 5 === 0) {
+        ctx.beginPath();
+        ctx.arc(x, y, size * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${hue}, 70%, 70%, ${opacity * 0.3})`;
+        ctx.fill();
+      }
+    }
+
+    // Add subtle glow overlay
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = 'rgba(147, 51, 234, 0.04)';
+    ctx.fillRect(0, 0, width, height);
+    ctx.globalCompositeOperation = 'source-over';
+
+    animationRef.current = requestAnimationFrame(animate);
+  };
+
+  // Handle resize
+  const handleResize = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initializeBlobs();
+  };
+
+  // Handle visibility change
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = undefined;
+      }
+    } else {
+      if (!animationRef.current) {
+        animationRef.current = requestAnimationFrame((time) => animate(time));
+      }
+    }
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Initialize blobs
+    initializeBlobs();
+
+    // Start animation
+    animationRef.current = requestAnimationFrame((time) => animate(time));
+
+    // Add event listeners
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   return (
-    <div className="fixed inset-0 -z-20 pointer-events-none overflow-hidden">
-      {stars.map((s, idx) => (
-        <div
-          key={idx}
-          className={`absolute rounded-full bg-white animate-twinkle${s.twinkle}`}
-          style={{
-            left: `${s.left}%`,
-            top: `${s.top}%`,
-            width: `24px`,
-            height: `24px`,
-            opacity: 1,
-            border: '2px solid #22c55e',
-            boxShadow: '0 0 12px 4px #22c55e33, 0 0 2px 1px #fff',
-            filter: 'none',
-          }}
-        />
-      ))}
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 w-full h-full pointer-events-none"
+      style={{
+        zIndex: -10,
+        opacity: 0.6,
+        mixBlendMode: 'screen'
+      }}
+    />
+  );
+}
+
+function Clock() {
+  const [time, setTime] = useState(new Date());
+  const [is24Hour, setIs24Hour] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const toggleFormat = () => {
+    setIs24Hour(!is24Hour);
+  };
+
+  const formatTime = () => {
+    if (is24Hour) {
+      const hours = time.getHours().toString().padStart(2, '0');
+      const minutes = time.getMinutes().toString().padStart(2, '0');
+      const seconds = time.getSeconds().toString().padStart(2, '0');
+      return `${hours}:${minutes}:${seconds}`;
+    } else {
+      const hours = time.getHours();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 || 12;
+      const minutes = time.getMinutes().toString().padStart(2, '0');
+      const seconds = time.getSeconds().toString().padStart(2, '0');
+      return `${displayHours}:${minutes}:${seconds} ${ampm}`;
+    }
+  };
+
+  return (
+    <div className="fixed top-6 right-6 z-50">
+      <div 
+        className="bg-slate-900/80 backdrop-blur-xl rounded-xl px-4 py-2 border border-cyan-500/30 shadow-lg cursor-pointer transition-all duration-200 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:border-cyan-400/50"
+        onClick={toggleFormat}
+      >
+        <div className="font-mono text-2xl font-bold text-cyan-400 tracking-wider drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
+          {formatTime()}
+        </div>
+      </div>
     </div>
   );
 }
@@ -282,7 +773,8 @@ export default function Home() {
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
-        zIndex: 9999
+        zIndex: 9999,
+        colors: ['#22d3ee', '#3b82f6', '#6366f1', '#8b5cf6']
       });
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 2000);
@@ -290,35 +782,29 @@ export default function Home() {
   };
 
   return (
-    <main className="relative min-h-screen flex flex-col justify-center items-center text-white font-sans transition-colors duration-500 bg-black">
-      <StarfieldBackground />
-      {/* Tailwind safelist for twinkle classes */}
-      <div className="hidden animate-twinkle1 animate-twinkle2 animate-twinkle3" />
-      <GreenBlobsBackground />
-      <GreenParticlesBackground />
-      <GreenGlowCursor />
-      <ParallaxBlobs />
-      <GlassNoiseOverlay />
+    <main className="relative min-h-screen flex flex-col justify-center items-center text-white font-sans transition-colors duration-500">
+      <OrganicFlowingBlobsBackground />
+      <Clock />
       <div className="flex flex-col items-center gap-8 px-4 py-16 w-full">
         <FadeInSection delay={100}>
           <h1
-            className="premium-heading text-5xl md:text-7xl font-extrabold text-center tracking-tight drop-shadow-lg mb-2 relative select-none text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-800 leading-[1.2]"
+            className="font-heading text-5xl md:text-7xl font-extrabold text-center tracking-tight drop-shadow-lg mb-2 relative select-none text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 leading-[1.2]"
           >
-                          Sentinel
+            Sentinel
           </h1>
         </FadeInSection>
         <FadeInSection delay={300}>
           <AnimatedLogo />
         </FadeInSection>
         <FadeInSection delay={500}>
-          <span className="premium-heading text-xl md:text-2xl text-center text-green-300 mb-2 font-semibold tracking-wide">The effortless way to manage free trials and subscriptions.</span>
+          <span className="font-body text-xl md:text-2xl text-center text-white mb-2 font-semibold tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">The effortless way to manage free trials and subscriptions.</span>
         </FadeInSection>
         <FadeInSection delay={700}>
           <Typewriter />
         </FadeInSection>
         <FadeInSection delay={900}>
           <div className="flex flex-col items-center gap-6 w-full max-w-xl">
-            <div className="bg-zinc-900/60 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-green-900/60 flex flex-col items-center w-full">
+            <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-cyan-500/30 flex flex-col items-center w-full transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.2)] hover:border-cyan-400/50 hover:scale-[1.02] hover:bg-slate-900/90">
               <form 
                 action="https://formspree.io/f/xyzjrazr"
                 method="POST"
@@ -329,25 +815,25 @@ export default function Home() {
                   type="email"
                   name="email"
                   required
-                  placeholder="Enter your email"
-                  className="px-4 py-2 rounded-lg bg-zinc-900 text-white border border-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 w-64 md:w-72 shadow-md"
+                  placeholder="Enter your email. Save money. Get lit."
+                  className="px-4 py-3 rounded-lg bg-slate-800/80 text-white border border-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 w-80 md:w-96 shadow-lg backdrop-blur-sm transition-all duration-200 focus:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
                 />
                 <button
                   type="submit"
-                  className="px-7 py-2 rounded-lg font-bold shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 bg-gradient-to-r from-green-600 to-green-800 text-white hover:from-green-500 hover:to-green-700 focus:shadow-[0_0_16px_4px_rgba(34,197,94,0.5)] hover:shadow-[0_0_24px_8px_rgba(34,197,94,0.7)] animate-glow active:scale-95"
+                  className="px-5 py-2.5 rounded-lg font-bold shadow-lg transform transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.4)] bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white hover:from-cyan-400 hover:via-blue-400 hover:to-indigo-500 active:scale-95 drop-shadow-[0_4px_12px_rgba(34,211,238,0.3)]"
                 >
-                  {submitted ? "Added!" : "Join the Waitlist"}
+                  {submitted ? "Added!" : "Be the first to know"}
                 </button>
               </form>
               <SuccessCheckmark show={submitted} />
             </div>
-            {/* Social buttons */}
-            <div className="flex flex-col gap-2 w-full items-center">
+            {/* Enhanced social buttons */}
+            <div className="flex flex-col gap-3 w-full items-center">
               <a
                 href="https://www.instagram.com/usesentinelai/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2 rounded-full font-semibold bg-zinc-900/80 border border-green-700 text-green-300 hover:bg-green-700/20 hover:text-green-100 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_16px_4px_rgba(34,197,94,0.25)]"
+                className="flex items-center gap-3 px-6 py-3 rounded-full font-semibold bg-slate-800/80 border border-cyan-500/50 text-cyan-200 hover:bg-cyan-500/20 hover:text-cyan-100 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(34,211,238,0.3)] backdrop-blur-sm"
               >
                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 0A5.75 5.75 0 0 0 2 7.75Zm8.5 0A5.75 5.75 0 0 1 22 7.75Zm0 20A5.75 5.75 0 0 0 22 16.25Zm-8.5 0A5.75 5.75 0 0 1 2 16.25Zm3.75-7.25a3.5 3.5 0 1 0 7 0a3.5 3.5 0 0 0-7 0Zm7.25-4.25a1 1 0 1 0 2 0a1 1 0 0 0-2 0Z"/></svg>
                 Instagram
@@ -356,7 +842,7 @@ export default function Home() {
                 href="https://www.tiktok.com/@usesentinelai"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2 rounded-full font-semibold bg-zinc-900/80 border border-green-700 text-green-300 hover:bg-green-700/20 hover:text-green-100 shadow-md transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_16px_4px_rgba(34,197,94,0.25)]"
+                className="flex items-center gap-3 px-6 py-3 rounded-full font-semibold bg-slate-800/80 border border-cyan-500/50 text-cyan-200 hover:bg-cyan-500/20 hover:text-cyan-100 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(34,211,238,0.3)] backdrop-blur-sm"
               >
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" className="inline-block"><path d="M16.5 2a1 1 0 0 0-1 1v12.25a2.75 2.75 0 1 1-2.75-2.75 1 1 0 1 0 0-2A4.75 4.75 0 1 0 17.5 17V8.56a7.03 7.03 0 0 0 3 0V6.5a1 1 0 0 0-1-1c-1.1 0-2-.9-2-2a1 1 0 0 0-1-1Z"/></svg>
                 TikTok
