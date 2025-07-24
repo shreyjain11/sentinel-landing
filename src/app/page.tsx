@@ -20,160 +20,13 @@ const typewriterPhrases = [
   "Simple.",
 ];
 
-function SmoothFilledOrganicCurveBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number | undefined>(undefined);
-  const lastTimeRef = useRef<number>(0);
-
-  // Animation loop
-  const animate = (currentTime: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Cap at 30fps for performance
-    if (currentTime - lastTimeRef.current < 33.33) {
-      animationRef.current = requestAnimationFrame(animate);
-      return;
-    }
-    lastTimeRef.current = currentTime;
-
-    const { width, height } = canvas;
-    const time = currentTime * 0.001;
-
-    // Clear canvas
-    ctx.fillStyle = '#020617';
-    ctx.fillRect(0, 0, width, height);
-
-    // Create filled organic curves
-    for (let i = 0; i < 3; i++) {
-      const offset = i * 0.6;
-      const amplitude = 80 + Math.sin(time * 0.3 + i) * 30;
-      const frequency = 0.012 + Math.sin(time * 0.2 + i) * 0.002;
-      
-      ctx.beginPath();
-      
-      // Start the filled curve at the top
-      const startY = height * 0.2 + Math.sin(time * 0.4 + offset) * 40;
-      ctx.moveTo(0, startY);
-      
-      // Create the top edge of the filled curve
-      for (let x = 0; x < width; x += 1) {
-        const y = height * 0.2 + 
-                  Math.sin(x * frequency + time * 0.6 + offset) * amplitude +
-                  Math.sin(x * frequency * 0.7 + time * 0.8 + offset) * amplitude * 0.4 +
-                  Math.sin(x * frequency * 0.3 + time * 1.2 + offset) * amplitude * 0.2;
-        
-        ctx.lineTo(x, y);
-      }
-      
-      // Complete the filled shape by going to bottom and back
-      ctx.lineTo(width, height);
-      ctx.lineTo(0, height);
-      ctx.closePath();
-      
-      // Create gradient for the filled curve
-      const gradient = ctx.createLinearGradient(0, 0, width, 0);
-      gradient.addColorStop(0, `rgba(147, 51, 234, ${0.15 - i * 0.03})`);
-      gradient.addColorStop(0.3, `rgba(99, 102, 241, ${0.2 - i * 0.03})`);
-      gradient.addColorStop(0.7, `rgba(139, 92, 250, ${0.18 - i * 0.03})`);
-      gradient.addColorStop(1, `rgba(147, 51, 234, ${0.15 - i * 0.03})`);
-      
-      ctx.fillStyle = gradient;
-      ctx.fill();
-    }
-
-    // Add subtle floating particles
-    for (let i = 0; i < 12; i++) {
-      const x = (Math.sin(time * 0.2 + i * 0.8) * 0.5 + 0.5) * width;
-      const y = (Math.cos(time * 0.3 + i * 0.6) * 0.5 + 0.5) * height;
-      const size = Math.sin(time + i) * 2 + 3;
-      const opacity = Math.sin(time * 0.6 + i) * 0.2 + 0.1;
-
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(147, 197, 253, ${opacity})`;
-      ctx.fill();
-    }
-
-    // Add subtle glow overlay
-    ctx.globalCompositeOperation = 'screen';
-    ctx.fillStyle = 'rgba(147, 51, 234, 0.05)';
-    ctx.fillRect(0, 0, width, height);
-    ctx.globalCompositeOperation = 'source-over';
-
-    animationRef.current = requestAnimationFrame(animate);
-  };
-
-  // Handle resize
-  const handleResize = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  };
-
-  // Handle visibility change
-  const handleVisibilityChange = () => {
-    if (document.hidden) {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = undefined;
-      }
-    } else {
-      if (!animationRef.current) {
-        animationRef.current = requestAnimationFrame((time) => animate(time));
-      }
-    }
-  };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Set canvas size
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    // Start animation
-    animationRef.current = requestAnimationFrame((time) => animate(time));
-
-    // Add event listeners
-    window.addEventListener('resize', handleResize);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      window.removeEventListener('resize', handleResize);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none"
-      style={{
-        zIndex: -10,
-        opacity: 0.6,
-        mixBlendMode: 'screen'
-      }}
-    />
-  );
-}
-
 function Typewriter() {
   const [index, setIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    let timeout;
+    let timeout: NodeJS.Timeout;
     if (!deleting && displayed.length < typewriterPhrases[index].length) {
       timeout = setTimeout(() => setDisplayed(typewriterPhrases[index].slice(0, displayed.length + 1)), 50);
     } else if (deleting && displayed.length > 0) {
@@ -251,236 +104,21 @@ function SuccessCheckmark({ show }: { show: boolean }) {
   ) : null;
 }
 
-function RandomMovingOrganicShapesBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number | undefined>(undefined);
-  const lastTimeRef = useRef<number>(0);
-  const shapesRef = useRef<Array<{
-    x: number;
-    y: number;
-    size: number;
-    speedX: number;
-    speedY: number;
-    rotation: number;
-    rotationSpeed: number;
-    points: number;
-    timeOffset: number;
-  }>>([]);
-
-  // Initialize random shapes
-  const initializeShapes = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const { width, height } = canvas;
-    shapesRef.current = [];
-
-    // Create 8-12 random organic shapes
-    const numShapes = 8 + Math.floor(Math.random() * 5);
-    
-    for (let i = 0; i < numShapes; i++) {
-      shapesRef.current.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        size: 60 + Math.random() * 120,
-        speedX: (Math.random() - 0.5) * 0.8,
-        speedY: (Math.random() - 0.5) * 0.8,
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.02,
-        points: 6 + Math.floor(Math.random() * 4),
-        timeOffset: Math.random() * Math.PI * 2
-      });
-    }
-  };
-
-  // Create organic shape path
-  const createOrganicShape = (ctx: CanvasRenderingContext2D, shape: any, time: number) => {
-    const { x, y, size, rotation, points, timeOffset } = shape;
-    
-    ctx.beginPath();
-    
-    for (let i = 0; i <= points; i++) {
-      const angle = (i / points) * Math.PI * 2 + rotation;
-      const radius = size * (0.7 + Math.sin(time * 0.5 + timeOffset + i * 0.5) * 0.3);
-      
-      const px = x + Math.cos(angle) * radius;
-      const py = y + Math.sin(angle) * radius;
-      
-      if (i === 0) {
-        ctx.moveTo(px, py);
-      } else {
-        // Create smooth curves between points
-        const prevAngle = ((i - 1) / points) * Math.PI * 2 + rotation;
-        const prevRadius = size * (0.7 + Math.sin(time * 0.5 + timeOffset + (i - 1) * 0.5) * 0.3);
-        const prevX = x + Math.cos(prevAngle) * prevRadius;
-        const prevY = y + Math.sin(prevAngle) * prevRadius;
-        
-        const cpX = (prevX + px) / 2 + Math.sin(time * 0.3 + i) * 10;
-        const cpY = (prevY + py) / 2 + Math.cos(time * 0.3 + i) * 10;
-        
-        ctx.quadraticCurveTo(cpX, cpY, px, py);
-      }
-    }
-    
-    ctx.closePath();
-  };
-
-  // Animation loop
-  const animate = (currentTime: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Cap at 30fps for performance
-    if (currentTime - lastTimeRef.current < 33.33) {
-      animationRef.current = requestAnimationFrame(animate);
-      return;
-    }
-    lastTimeRef.current = currentTime;
-
-    const { width, height } = canvas;
-    const time = currentTime * 0.001;
-
-    // Clear canvas
-    ctx.fillStyle = '#020617';
-    ctx.fillRect(0, 0, width, height);
-
-    // Update and draw shapes
-    shapesRef.current.forEach((shape, index) => {
-      // Update position
-      shape.x += shape.speedX;
-      shape.y += shape.speedY;
-      shape.rotation += shape.rotationSpeed;
-
-      // Bounce off edges
-      if (shape.x < shape.size || shape.x > width - shape.size) {
-        shape.speedX *= -1;
-        shape.x = Math.max(shape.size, Math.min(width - shape.size, shape.x));
-      }
-      if (shape.y < shape.size || shape.y > height - shape.size) {
-        shape.speedY *= -1;
-        shape.y = Math.max(shape.size, Math.min(height - shape.size, shape.y));
-      }
-
-      // Create organic shape
-      createOrganicShape(ctx, shape, time);
-
-      // Create gradient for the shape
-      const gradient = ctx.createRadialGradient(
-        shape.x, shape.y, 0,
-        shape.x, shape.y, shape.size
-      );
-      
-      const hue = (index * 60 + time * 20) % 360;
-      gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, 0.3)`);
-      gradient.addColorStop(0.7, `hsla(${hue + 30}, 70%, 50%, 0.2)`);
-      gradient.addColorStop(1, `hsla(${hue + 60}, 70%, 40%, 0.1)`);
-
-      ctx.fillStyle = gradient;
-      ctx.fill();
-    });
-
-    // Add subtle floating particles
-    for (let i = 0; i < 15; i++) {
-      const x = (Math.sin(time * 0.2 + i * 0.7) * 0.5 + 0.5) * width;
-      const y = (Math.cos(time * 0.3 + i * 0.5) * 0.5 + 0.5) * height;
-      const size = Math.sin(time + i) * 2 + 2;
-      const opacity = Math.sin(time * 0.6 + i) * 0.15 + 0.05;
-
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(147, 197, 253, ${opacity})`;
-      ctx.fill();
-    }
-
-    // Add subtle glow overlay
-    ctx.globalCompositeOperation = 'screen';
-    ctx.fillStyle = 'rgba(147, 51, 234, 0.03)';
-    ctx.fillRect(0, 0, width, height);
-    ctx.globalCompositeOperation = 'source-over';
-
-    animationRef.current = requestAnimationFrame(animate);
-  };
-
-  // Handle resize
-  const handleResize = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    initializeShapes();
-  };
-
-  // Handle visibility change
-  const handleVisibilityChange = () => {
-    if (document.hidden) {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = undefined;
-      }
-    } else {
-      if (!animationRef.current) {
-        animationRef.current = requestAnimationFrame((time) => animate(time));
-      }
-    }
-  };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    // Set canvas size
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    // Initialize shapes
-    initializeShapes();
-
-    // Start animation
-    animationRef.current = requestAnimationFrame((time) => animate(time));
-
-    // Add event listeners
-    window.addEventListener('resize', handleResize);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      window.removeEventListener('resize', handleResize);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none"
-      style={{
-        zIndex: -10,
-        opacity: 0.7,
-        mixBlendMode: 'screen'
-      }}
-    />
-  );
+interface Blob {
+  x: number;
+  y: number;
+  size: number;
+  speedX: number;
+  speedY: number;
+  timeOffset: number;
+  complexity: number;
 }
 
 function OrganicFlowingBlobsBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
-  const blobsRef = useRef<Array<{
-    x: number;
-    y: number;
-    size: number;
-    speedX: number;
-    speedY: number;
-    timeOffset: number;
-    complexity: number;
-  }>>([]);
+  const blobsRef = useRef<Blob[]>([]);
 
   // Initialize organic blobs
   const initializeBlobs = () => {
@@ -507,7 +145,7 @@ function OrganicFlowingBlobsBackground() {
   };
 
   // Create organic blob path
-  const createOrganicBlob = (ctx: CanvasRenderingContext2D, blob: any, time: number) => {
+  const createOrganicBlob = (ctx: CanvasRenderingContext2D, blob: Blob, time: number) => {
     const { x, y, size, timeOffset, complexity } = blob;
     
     ctx.beginPath();
