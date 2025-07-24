@@ -355,10 +355,13 @@ function OrganicFlowingBlobsBackground() {
 }
 
 function Clock() {
-  const [time, setTime] = useState(new Date());
+  const [time, setTime] = useState<Date | null>(null);
   const [is24Hour, setIs24Hour] = useState(true);
 
   useEffect(() => {
+    // Set initial time only on client
+    setTime(new Date());
+    
     const timer = setInterval(() => {
       setTime(new Date());
     }, 1000);
@@ -371,6 +374,8 @@ function Clock() {
   };
 
   const formatTime = () => {
+    if (!time) return "00:00:00";
+    
     if (is24Hour) {
       const hours = time.getHours().toString().padStart(2, '0');
       const minutes = time.getMinutes().toString().padStart(2, '0');
@@ -402,21 +407,48 @@ function Clock() {
 
 export default function Home() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
-    // Let the form submit naturally to Formspree
-    // Show confetti after a short delay
-    setTimeout(() => {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        zIndex: 9999,
-        colors: ['#22d3ee', '#3b82f6', '#6366f1', '#8b5cf6']
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    
+    try {
+      const response = await fetch('https://formspree.io/f/xyzjrazr', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
       });
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 2000);
-    }, 100);
+
+      if (response.ok) {
+        // Show confetti and success state
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          zIndex: 9999,
+          colors: ['#22d3ee', '#3b82f6', '#6366f1', '#8b5cf6']
+        });
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 2000);
+        
+        // Reset the form
+        const form = e.currentTarget;
+        if (form) {
+          form.reset();
+        }
+      } else {
+        console.error('Form submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -444,8 +476,6 @@ export default function Home() {
           <div className="flex flex-col items-center gap-6 w-full max-w-xl">
             <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-cyan-500/30 flex flex-col items-center w-full transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.2)] hover:border-cyan-400/50 hover:scale-[1.02] hover:bg-slate-900/90">
               <form 
-                action="https://formspree.io/f/xyzjrazr"
-                method="POST"
                 onSubmit={handleSubmit}
                 className="flex flex-col md:flex-row gap-3 items-center w-full justify-center"
               >
@@ -458,9 +488,10 @@ export default function Home() {
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-lg font-bold shadow-lg transform transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.4)] bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white hover:from-cyan-400 hover:via-blue-400 hover:to-indigo-500 active:scale-95 drop-shadow-[0_4px_12px_rgba(34,211,238,0.3)]"
+                  disabled={isSubmitting}
+                  className="px-5 py-2.5 rounded-lg font-bold shadow-lg transform transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.4)] bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white hover:from-cyan-400 hover:via-blue-400 hover:to-indigo-500 active:scale-95 drop-shadow-[0_4px_12px_rgba(34,211,238,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {submitted ? "Added!" : "Be the first to know"}
+                  {isSubmitting ? "Adding..." : submitted ? "Added!" : "Be the first to know"}
                 </button>
               </form>
               <SuccessCheckmark show={submitted} />
