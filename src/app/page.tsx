@@ -354,56 +354,7 @@ function OrganicFlowingBlobsBackground() {
   );
 }
 
-function Clock() {
-  const [time, setTime] = useState<Date | null>(null);
-  const [is24Hour, setIs24Hour] = useState(true);
 
-  useEffect(() => {
-    // Set initial time only on client
-    setTime(new Date());
-    
-    const timer = setInterval(() => {
-      setTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const toggleFormat = () => {
-    setIs24Hour(!is24Hour);
-  };
-
-  const formatTime = () => {
-    if (!time) return "00:00:00";
-    
-    if (is24Hour) {
-      const hours = time.getHours().toString().padStart(2, '0');
-      const minutes = time.getMinutes().toString().padStart(2, '0');
-      const seconds = time.getSeconds().toString().padStart(2, '0');
-      return `${hours}:${minutes}:${seconds}`;
-    } else {
-      const hours = time.getHours();
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      const displayHours = hours % 12 || 12;
-      const minutes = time.getMinutes().toString().padStart(2, '0');
-      const seconds = time.getSeconds().toString().padStart(2, '0');
-      return `${displayHours}:${minutes}:${seconds} ${ampm}`;
-    }
-  };
-
-  return (
-    <div className="fixed top-6 right-6 z-50">
-      <div 
-        className="bg-slate-900/80 backdrop-blur-xl rounded-xl px-4 py-2 border border-cyan-500/30 shadow-lg cursor-pointer transition-all duration-200 hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:border-cyan-400/50"
-        onClick={toggleFormat}
-      >
-        <div className="font-mono text-2xl font-bold text-cyan-400 tracking-wider drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
-          {formatTime()}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   const [submitted, setSubmitted] = useState(false);
@@ -454,7 +405,6 @@ export default function Home() {
   return (
     <main className="relative min-h-screen flex flex-col justify-center items-center text-white font-sans transition-colors duration-500">
       <OrganicFlowingBlobsBackground />
-      <Clock />
       <div className="flex flex-col items-center gap-8 px-4 py-16 w-full">
         <FadeInSection delay={100}>
           <h1
