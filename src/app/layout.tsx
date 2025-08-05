@@ -37,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.ico?v=2" />
+        <link rel="icon" href="/favicon.ico?v=3" />
       </head>
       <body className={`${inter.variable} ${manrope.variable} ${ibmPlexSans.variable} ${spaceGrotesk.variable} font-sans antialiased`}>{children}</body>
     </html>
