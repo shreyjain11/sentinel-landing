@@ -1,6 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import "./globals.css";
 import confetti from "canvas-confetti";
 
