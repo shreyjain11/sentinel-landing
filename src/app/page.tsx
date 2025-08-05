@@ -19,6 +19,58 @@ const typewriterPhrases = [
   "Simple.",
 ];
 
+// Random Grid Component
+function RandomGrid() {
+  const [highlightedSquare, setHighlightedSquare] = useState({ row: 0, col: 0 });
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    const interval = setInterval(() => {
+      // Clear any existing timeout
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      // Generate random position: 1-10 for columns, 1-5 for rows
+      const randomCol = Math.floor(Math.random() * 10);
+      const randomRow = Math.floor(Math.random() * 5);
+      setHighlightedSquare({ row: randomRow, col: randomCol });
+      
+      // Fade in
+      setIsVisible(true);
+      
+      // Stay lit for 2 seconds, then fade out
+      timeoutId = setTimeout(() => {
+        setIsVisible(false);
+      }, 2000);
+    }, 2000); // Change every 2 seconds
+
+    return () => {
+      clearInterval(interval);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[-1]">
+      <div 
+        className={`absolute bg-blue-300 bg-opacity-10 transition-all duration-1000 ease-in-out shadow-[0_0_25px_rgba(147,197,253,0.4)]`}
+        style={{
+          width: '10%',
+          height: '20%',
+          left: `${highlightedSquare.col * 10}%`,
+          top: `${highlightedSquare.row * 20}%`,
+          opacity: isVisible ? 0.6 : 0,
+        }}
+      />
+    </div>
+  );
+}
+
 function Typewriter() {
   const [index, setIndex] = useState(0);
   const [displayed, setDisplayed] = useState("");
@@ -139,7 +191,7 @@ export default function Home() {
         
         <FadeInSection delay={500}>
           <div className="flex flex-col items-center gap-8 w-full max-w-xl">
-            <div className="bg-white p-8 shadow-xl border border-gray-100 flex flex-col items-center w-full transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] rounded-sm">
+            <div className="bg-white p-8 shadow-xl border border-gray-100 flex flex-col items-center w-full transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] rounded-xl backdrop-blur-sm">
               <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">Be the first to know</h2>
               <form 
                 onSubmit={handleSubmit}
@@ -150,12 +202,12 @@ export default function Home() {
                   name="email"
                   required
                   placeholder="Enter your email address"
-                  className="px-4 py-3 bg-gray-50 text-gray-900 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full md:w-80 shadow-sm transition-all duration-200 rounded-sm"
+                  className="px-4 py-3 bg-gray-50 text-gray-900 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full md:w-80 shadow-sm transition-all duration-200 rounded-full"
                 />
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn-hover-effect px-6 py-3 font-bold shadow-lg transform transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white border border-gray-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-sm"
+                  className="btn-hover-effect px-6 py-3 font-bold shadow-lg transform transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white border border-gray-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-full"
                 >
                   <span>{isSubmitting ? "Adding..." : submitted ? "Added!" : "Get Early Access"}</span>
                 </button>
@@ -170,7 +222,7 @@ export default function Home() {
                   href="https://www.instagram.com/usesentinelai/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="social-btn-hover flex items-center gap-3 px-5 py-2.5 font-semibold bg-white border border-gray-200 text-gray-700 shadow-lg transition-all duration-200 hover:-translate-y-1 rounded-sm"
+                  className="social-btn-hover flex items-center gap-3 px-5 py-2.5 font-semibold bg-white border border-gray-200 text-gray-700 shadow-lg transition-all duration-200 hover:-translate-y-1 rounded-full"
                 >
                   <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline-block"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 0A5.75 5.75 0 0 0 2 7.75Zm8.5 0A5.75 5.75 0 0 1 22 7.75Zm0 20A5.75 5.75 0 0 0 22 16.25Zm-8.5 0A5.75 5.75 0 0 1 2 16.25Zm3.75-7.25a3.5 3.5 0 1 0 7 0a3.5 3.5 0 0 0-7 0Zm7.25-4.25a1 1 0 1 0 2 0a1 1 0 0 0-2 0Z"/></svg>
                   <span>Instagram</span>
@@ -179,7 +231,7 @@ export default function Home() {
                   href="https://www.tiktok.com/@usesentinelai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="social-btn-hover flex items-center gap-3 px-5 py-2.5 font-semibold bg-white border border-gray-200 text-gray-700 shadow-lg transition-all duration-200 hover:-translate-y-1 rounded-sm"
+                  className="social-btn-hover flex items-center gap-3 px-5 py-2.5 font-semibold bg-white border border-gray-200 text-gray-700 shadow-lg transition-all duration-200 hover:-translate-y-1 rounded-full"
                 >
                   <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" className="inline-block"><path d="M16.5 2a1 1 0 0 0-1 1v12.25a2.75 2.75 0 1 1-2.75-2.75 1 1 0 1 0 0-2A4.75 4.75 0 1 0 17.5 17V8.56a7.03 7.03 0 0 0 3 0V6.5a1 1 0 0 0-1-1c-1.1 0-2-.9-2-2a1 1 0 0 0-1-1Z"/></svg>
                   <span>TikTok</span>
@@ -189,6 +241,7 @@ export default function Home() {
           </div>
         </FadeInSection>
       </div>
+      <RandomGrid />
     </main>
   );
 }
